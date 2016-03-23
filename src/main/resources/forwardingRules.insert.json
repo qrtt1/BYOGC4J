@@ -2,6 +2,6 @@
   "name": "${name}",
   "IPAddress": "",
   "IPProtocol": "TCP",
-  "portRange": "${portRange},
+  "portRange": "${portRange}",
   "target": "${target}"
 }
