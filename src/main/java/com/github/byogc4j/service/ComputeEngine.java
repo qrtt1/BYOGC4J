@@ -31,7 +31,8 @@ public interface ComputeEngine {
         @Verb(HttpMethod.POST)
         @PathParamsTemplate("/:project/regions/:region/forwardingRules")
         @RequestBodyTemplate("/forwardingRules.insert.json")
-        public JsonObject insert(@Name("project") String project, @Name("region") String region, Param param);
+        public JsonObject insert(@Name("project") String project, @Name("region") String region,
+                @Name("name") String name, Param param);
 
         @Verb(HttpMethod.GET)
         @PathParamsTemplate("/:project/regions/:region/forwardingRules")
@@ -49,7 +50,8 @@ public interface ComputeEngine {
         @Verb(HttpMethod.POST)
         @PathParamsTemplate("/:project/regions/:region/targetPools")
         @RequestBodyTemplate("/targetPools.insert.json")
-        public JsonObject insert(@Name("project") String project, @Name("region") String region, Param param);
+        public JsonObject insert(@Name("project") String project, @Name("region") String region,
+                @Name("name") String name, Param param);
 
         @Verb(HttpMethod.GET)
         @PathParamsTemplate("/:project/regions/:region/targetPools")
