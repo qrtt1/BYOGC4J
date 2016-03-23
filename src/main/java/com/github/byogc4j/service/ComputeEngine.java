@@ -41,6 +41,12 @@ public interface ComputeEngine {
     public interface TargetPools {
 
         @Verb(HttpMethod.POST)
+        @PathParamsTemplate("/:project/regions/:region/targetPools/:targetPool/addInstance")
+        @RequestBodyTemplate("/targetPools.addInstance.json")
+        public JsonObject addInstance(@Name("project") String project, @Name("region") String region,
+                @Name("targetPool") String targetPool, @Name("instance") String instance);
+
+        @Verb(HttpMethod.POST)
         @PathParamsTemplate("/:project/regions/:region/targetPools")
         @RequestBodyTemplate("/targetPools.insert.json")
         public JsonObject insert(@Name("project") String project, @Name("region") String region, Param param);

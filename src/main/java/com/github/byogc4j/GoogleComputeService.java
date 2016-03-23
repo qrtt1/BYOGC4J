@@ -8,6 +8,9 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.byogc4j.annotation.Defaults;
 import com.github.byogc4j.annotation.HttpMethod;
 import com.github.byogc4j.annotation.Name;
@@ -27,10 +30,12 @@ import com.google.api.client.json.Json;
 import com.google.api.client.util.IOUtils;
 import com.google.api.client.util.Maps;
 import com.google.common.reflect.AbstractInvocationHandler;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class GoogleComputeService {
 
+    private static final Logger logger = LoggerFactory.getLogger(GoogleComputeService.class);
     private Map<Class<?>, AbstractGoogleJsonClient> serviceClients = new HashMap<Class<?>, AbstractGoogleJsonClient>();
 
     public void registerClient(Class<?> serviceClass, AbstractGoogleJsonClient client) {
@@ -71,14 +76,23 @@ public class GoogleComputeService {
 
             Map<String, Object> parameters = createParametersMap(method, args);
             GenericUrl url = createRequestURL(method, parameters);
+            logger.debug("create resource[{}] url {}.", resourceClass, url);
 
             HttpResponse response = null;
             try {
                 response = doRequest(method, parameters, url);
             } catch (HttpResponseException e) {
+                logger.error("exception with resource[{}] url {}.", resourceClass, url);
+                logger.error(e.getMessage(), e);
                 String message = e.getMessage();
                 int jsonIndex = message.indexOf("\n");
-                return new JsonParser().parse(message.substring(jsonIndex)).getAsJsonObject();
+                try {
+                    return new JsonParser().parse(message.substring(jsonIndex)).getAsJsonObject();
+                } catch (Exception ignored) {
+                    JsonObject json = new JsonObject();
+                    json.addProperty("exception", e.getMessage());
+                    return json;
+                }
             }
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
