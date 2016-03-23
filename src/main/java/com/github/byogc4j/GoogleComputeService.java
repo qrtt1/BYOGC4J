@@ -36,6 +36,7 @@ import com.google.gson.JsonParser;
 public class GoogleComputeService {
 
     private static final Logger logger = LoggerFactory.getLogger(GoogleComputeService.class);
+
     private Map<Class<?>, AbstractGoogleJsonClient> serviceClients = new HashMap<Class<?>, AbstractGoogleJsonClient>();
 
     public void registerClient(Class<?> serviceClass, AbstractGoogleJsonClient client) {
@@ -44,6 +45,14 @@ public class GoogleComputeService {
 
     @SuppressWarnings("unchecked")
     public <T> T create(Class<?> serviceClass, Class<T> resourceClass) {
+        checkServiceClassPrecondition(serviceClass);
+
+        RootUri rootUri = serviceClass.getAnnotation(RootUri.class);
+        return (T) Proxy.newProxyInstance(GoogleComputeService.class.getClassLoader(), new Class[] { resourceClass },
+                new ServiceInvocationHander<T>(serviceClients.get(serviceClass), resourceClass, rootUri));
+    }
+
+    protected void checkServiceClassPrecondition(Class<?> serviceClass) {
         if (!serviceClass.isAnnotationPresent(RootUri.class)) {
             throw new RuntimeException("class[" + serviceClass + "] not annotated with @RootUri");
         }
@@ -51,18 +60,54 @@ public class GoogleComputeService {
         if (!serviceClients.containsKey(serviceClass)) {
             throw new RuntimeException("api client for class[" + serviceClass + "] not found");
         }
+    }
 
-        RootUri rootUri = serviceClass.getAnnotation(RootUri.class);
-        return (T) Proxy.newProxyInstance(GoogleComputeService.class.getClassLoader(), new Class[] { resourceClass },
-                new ServiceInvocationHander<T>(serviceClients.get(serviceClass), resourceClass, rootUri));
+    public JsonObject getUrl(Class<?> serviceClass, String url) {
+        try {
+            checkServiceClassPrecondition(serviceClass);
+            AbstractGoogleJsonClient httpClient = serviceClients.get(serviceClass);
+            return toJson(httpClient.getRequestFactory().buildGetRequest(new GenericUrl(url)).execute());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public JsonObject waitOperationDone(Class<?> serviceClass, JsonObject result) {
+        String kind = result.get("kind").getAsString();
+        String status = result.get("status").getAsString();
+        if (!"compute#operation".equals(kind)) {
+            return result;
+        }
+        if ("DONE".equals(status)) {
+            return result;
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+        }
+        String selfLink = result.get("selfLink").getAsString();
+        return waitOperationDone(serviceClass, getUrl(serviceClass, selfLink));
+    }
+
+    protected static JsonObject toJson(HttpResponse response) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            IOUtils.copy(response.getContent(), outputStream);
+            return new JsonParser().parse(new String(outputStream.toByteArray())).getAsJsonObject();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                response.disconnect();
+            } catch (IOException ignored) {
+            }
+        }
     }
 
     static class ServiceInvocationHander<T> extends AbstractInvocationHandler {
 
         private AbstractGoogleJsonClient client;
         private RootUri rootUri;
-        
-        @SuppressWarnings("unused")
         private Class<T> resourceClass;
 
         public ServiceInvocationHander(AbstractGoogleJsonClient client, Class<T> resourceClass, RootUri rootUri) {
@@ -95,21 +140,12 @@ public class GoogleComputeService {
                 }
             }
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            try {
-                IOUtils.copy(response.getContent(), outputStream);
-                return new JsonParser().parse(new String(outputStream.toByteArray())).getAsJsonObject();
-            } catch (Exception e) {
-                throw e;
-            } finally {
-                response.disconnect();
-            }
-
+            return toJson(response);
         }
 
         protected Map<String, Object> createParametersMap(Method method, Object[] args) {
             Map<String, Object> parameters = Maps.newHashMap();
-            
+
             Defaults defaults = method.getAnnotation(Defaults.class);
             if (defaults != null) {
                 for (String defaultConfig : defaults.value()) {
