@@ -44,8 +44,10 @@ An example for `ComputeEngine`. We group the resources of a service in following
 
 1. Service `ComputeEngine` annotated with `@RootUri`
 1. Resource `Instances` is just an java inteface with operations
-1. a operation without the request body should be annotated with `@Verb` `@PathParamsTemplate`
-1. a operation with the request body should be annotated with `@Verb` `@PathParamsTemplate` `@RequestBodyTemplate`
+1. any primitive parameter in an operation should be annoted with `@Name`, becasue we cannot know the name of the parameter after complied
+1. any extra parameter in an operation can set by `Param`
+1. an operation without the request body should be annotated with `@Verb` `@PathParamsTemplate`
+1. an operation with the request body should be annotated with `@Verb` `@PathParamsTemplate` `@RequestBodyTemplate`
 
 
 ```
@@ -72,7 +74,7 @@ public interface ComputeEngine {
 
 
 ```
-    @PathParamsTemplate("/:project/zones/:zone/instances")
+@PathParamsTemplate("/:project/zones/:zone/instances")
 ```
 
 In `@PathParamsTemplate` any string starts with `:` and following characters excludes `:` and `/` is a variable
