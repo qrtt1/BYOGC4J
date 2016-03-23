@@ -7,11 +7,16 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.api.client.util.IOUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class NamedTemplate {
+
+    private Logger logger = LoggerFactory.getLogger(NamedTemplate.class);
 
     public String template(String path, Map<String, Object> variables) {
 
@@ -31,8 +36,15 @@ public class NamedTemplate {
     }
 
     public JsonObject templateJson(String path, Map<String, Object> variables) {
-        JsonParser jsonParser = new JsonParser();
-        return jsonParser.parse(template(path, variables)).getAsJsonObject();
+        String text = null;
+        try {
+            text = template(path, variables);
+            JsonParser jsonParser = new JsonParser();
+            return jsonParser.parse(template(path, variables)).getAsJsonObject();
+        } catch (Exception e) {
+            logger.error("problem with text: {}", text);
+            throw new RuntimeException(e);
+        }
     }
 
     protected String readTemplate(String path) {
