@@ -1,6 +1,7 @@
 package com.github.byogc4j.service;
 
 import com.github.byogc4j.Param;
+import com.github.byogc4j.annotation.Defaults;
 import com.github.byogc4j.annotation.HttpMethod;
 import com.github.byogc4j.annotation.Name;
 import com.github.byogc4j.annotation.PathParamsTemplate;
@@ -25,4 +26,41 @@ public interface ComputeEngine {
 
     }
 
+    public interface ForwardingRules {
+
+        @Verb(HttpMethod.POST)
+        @PathParamsTemplate("/:project/regions/:region/forwardingRules")
+        @RequestBodyTemplate("/forwardingRules.insert.json")
+        public JsonObject insert(@Name("project") String project, @Name("region") String region, Param param);
+
+        @Verb(HttpMethod.GET)
+        @PathParamsTemplate("/:project/regions/:region/forwardingRules")
+        public JsonObject list(@Name("project") String project, @Name("region") String region);
+    }
+
+    public interface TargetPools {
+
+        @Verb(HttpMethod.POST)
+        @PathParamsTemplate("/:project/regions/:region/targetPools")
+        @RequestBodyTemplate("/targetPools.insert.json")
+        public JsonObject insert(@Name("project") String project, @Name("region") String region, Param param);
+
+        @Verb(HttpMethod.GET)
+        @PathParamsTemplate("/:project/regions/:region/targetPools")
+        public JsonObject list(@Name("project") String project, @Name("region") String region);
+    }
+
+    public interface HttpHealthChecks {
+
+        @Verb(HttpMethod.POST)
+        @PathParamsTemplate("/:project/global/httpHealthChecks")
+        @RequestBodyTemplate("/httpHealthChecks.insert.json")
+        @Defaults({ "checkIntervalSec=5", "healthyThreshold=2", "unhealthyThreshold=2", "timeoutSec=5", "port=80" })
+        public JsonObject insert(@Name("project") String project, Param param);
+
+        @Verb(HttpMethod.GET)
+        @PathParamsTemplate("/:project/global/httpHealthChecks")
+        public JsonObject list(@Name("project") String project);
+
+    }
 }

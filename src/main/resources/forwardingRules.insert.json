@@ -1,0 +1,7 @@
+{
+  "name": "${name}",
+  "IPAddress": "",
+  "IPProtocol": "TCP",
+  "portRange": "${portRange},
+  "target": "${target}"
+}

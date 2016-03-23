@@ -7,7 +7,7 @@ import com.google.api.client.googleapis.util.Utils;
 
 public class HttpClientBuilder extends AbstractGoogleJsonClient.Builder {
 
-    protected HttpClientBuilder(Class<?> serviceClass, GoogleCredential httpRequestInitializer) {
+    public HttpClientBuilder(Class<?> serviceClass, GoogleCredential httpRequestInitializer) {
         super(Utils.getDefaultTransport(), Utils.getDefaultJsonFactory(), getRootUrl(serviceClass),
                 getServicePath(serviceClass), httpRequestInitializer, false);
         setApplicationName("ClientFor" + serviceClass.getName());

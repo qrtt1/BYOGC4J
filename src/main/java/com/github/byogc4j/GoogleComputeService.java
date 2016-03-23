@@ -8,6 +8,7 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.byogc4j.annotation.Defaults;
 import com.github.byogc4j.annotation.HttpMethod;
 import com.github.byogc4j.annotation.Name;
 import com.github.byogc4j.annotation.PathParamsTemplate;
@@ -94,6 +95,14 @@ public class GoogleComputeService {
 
         protected Map<String, Object> createParametersMap(Method method, Object[] args) {
             Map<String, Object> parameters = Maps.newHashMap();
+            
+            Defaults defaults = method.getAnnotation(Defaults.class);
+            if (defaults != null) {
+                for (String defaultConfig : defaults.value()) {
+                    String[] keyValuePair = defaultConfig.split("=");
+                    parameters.put(keyValuePair[0], keyValuePair[1]);
+                }
+            }
 
             Annotation[][] annotations = method.getParameterAnnotations();
             for (int argIndex = 0; argIndex < annotations.length; argIndex++) {

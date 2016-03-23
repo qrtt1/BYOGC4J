@@ -1,0 +1,10 @@
+{
+  "name": "${name}",
+  "host": "",
+  "requestPath": "/",
+  "port": ${port},
+  "checkIntervalSec": ${checkIntervalSec},
+  "timeoutSec": ${timeoutSec},
+  "unhealthyThreshold": ${unhealthyThreshold},
+  "healthyThreshold": ${healthyThreshold}
+}
