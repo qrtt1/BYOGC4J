@@ -1,8 +1,7 @@
 
 ## Build Your Own Google Client For Java
 
-[gcloud-java](https://github.com/GoogleCloudPlatform/gcloud-java) is not supported compute-engine api, 
-and [jcloud](http://jclouds.apache.org/) is too large for simple usage.
+[gcloud-java](https://github.com/GoogleCloudPlatform/gcloud-java) is not supported compute-engine api, and [jcloud](http://jclouds.apache.org/) is too large for simple usage.
 
 We just build a workable simple client from [google-api-java-client](https://github.com/google/google-api-java-client).
 
@@ -11,32 +10,31 @@ We just build a workable simple client from [google-api-java-client](https://git
 ### Create And Register HttpClient
 
 ```java
-        GoogleCredential googleCredential = 
-            GoogleCredential.fromStream(new FileInputStream(new File("json-key-file from service account")));
-            
-        // grants scopes for http-client
-        googleCredential = googleCredential.createScoped(ComputeEnginsScopes.scopes());
+GoogleCredential googleCredential =
+    GoogleCredential.fromStream(new FileInputStream(new File("json-key-file from service account")));
 
-        // register the http-client to our GoogleComputeService object
-        GoogleComputeService api = new GoogleComputeService();
-        api.registerClient(ComputeEngine.class, new HttpClientBuilder(ComputeEngine.class, googleCredential).build());
+// grants scopes for http-client
+googleCredential = googleCredential.createScoped(ComputeEnginsScopes.scopes());
+
+// register the http-client to our GoogleComputeService object
+GoogleComputeService api = new GoogleComputeService();
+api.registerClient(ComputeEngine.class, new HttpClientBuilder(ComputeEngine.class, googleCredential).build());
 ```
 
 ```java
+// create the Instances object
+Instances instances = api.create(ComputeEngine.class, Instances.class);
 
-        // create the Instances object
-        Instances instances = api.create(ComputeEngine.class, Instances.class);
+String project = "your-project-id";
+String zone = "asia-east1-b";
 
-        String project = "your-project-id";
-        String zone = "asia-east1-b";
+Param param = Param
+        .create("name", "abce1")
+        .add("machineType", "zones/asia-east1-b/machineTypes/n1-standard-1")
+        .add("sourceImage",
+                "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20160314");
 
-        Param param = Param
-                .create("name", "abce1")
-                .add("machineType", "zones/asia-east1-b/machineTypes/n1-standard-1")
-                .add("sourceImage",
-                        "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20160314");
-
-        JsonObject result = instances.insert(project, zone, param);
+JsonObject result = instances.insert(project, zone, param);
 ```
 
 
