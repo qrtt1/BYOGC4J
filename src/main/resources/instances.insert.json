@@ -1,0 +1,38 @@
+{
+  "name": "${name}",
+  "machineType": "${machineType}",
+  "networkInterfaces": [
+    {
+      "accessConfigs": [
+        {
+          "type": "ONE_TO_ONE_NAT",
+          "name": "External NAT"
+        }
+      ]
+    }
+  ],
+  "tags": {
+    "items": [
+    ]
+  },
+  "disks": [
+    {
+      "initializeParams": {
+        "sourceImage": "${sourceImage}"
+      },
+      "boot": true,
+      "autoDelete": true
+    }
+  ],
+  "metadata": {
+    "items": []
+  },
+  "serviceAccounts": [
+    {
+      "email": "default",
+      "scopes": [
+        "https://www.googleapis.com/auth/devstorage.read_only"
+      ]
+    }
+  ]
+}
