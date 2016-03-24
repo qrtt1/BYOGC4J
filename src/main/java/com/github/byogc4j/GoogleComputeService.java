@@ -154,7 +154,11 @@ public class GoogleComputeService {
             if (defaults != null) {
                 for (String defaultConfig : defaults.value()) {
                     String[] keyValuePair = defaultConfig.split("=");
-                    parameters.put(keyValuePair[0], keyValuePair[1]);
+                    if (keyValuePair.length == 2) {
+                        parameters.put(keyValuePair[0], keyValuePair[1]);
+                    } else {
+                        parameters.put(keyValuePair[0], "");
+                    }
                 }
             }
 
@@ -244,8 +248,9 @@ public class GoogleComputeService {
             }
 
             RequestBodyTemplate requestBodyTemplate = method.getAnnotation(RequestBodyTemplate.class);
-            HttpContent content = new ByteArrayContent(Json.MEDIA_TYPE, new NamedTemplate()
-                    .templateJson(requestBodyTemplate.value(), parameters).toString().getBytes());
+            String body = new NamedTemplate().templateJson(requestBodyTemplate.value(), parameters).toString();
+            HttpContent content = new ByteArrayContent(Json.MEDIA_TYPE, body.getBytes());
+            logger.debug("request-body: " + body);
             return content;
         }
 
