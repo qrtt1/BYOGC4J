@@ -18,6 +18,7 @@ import com.github.byogc4j.annotation.HttpMethod;
 import com.github.byogc4j.annotation.Name;
 import com.github.byogc4j.annotation.OptionalQueryParameters;
 import com.github.byogc4j.annotation.PathParamsTemplate;
+import com.github.byogc4j.annotation.RequestBody;
 import com.github.byogc4j.annotation.RequestBodyTemplate;
 import com.github.byogc4j.annotation.RootUri;
 import com.github.byogc4j.annotation.Verb;
@@ -128,7 +129,7 @@ public class GoogleComputeService {
 
             HttpResponse response = null;
             try {
-                response = doRequest(method, parameters, url);
+                response = doRequest(method, args, parameters, url);
             } catch (HttpResponseException e) {
                 logger.error("exception with resource[{}] url {}.", resourceClass, url);
                 logger.error(e.getMessage(), e);
@@ -187,8 +188,9 @@ public class GoogleComputeService {
         }
 
         protected GenericUrl createRequestURL(Method method, Map<String, Object> parameters) {
+            RootUri baseUri = method.isAnnotationPresent(RootUri.class) ? method.getAnnotation(RootUri.class) : rootUri;
             PathParamsTemplate template = method.getAnnotation(PathParamsTemplate.class);
-            String url = rootUri.rootUrl() + rootUri.servicePath() + template.value();
+            String url = baseUri.rootUrl() + baseUri.servicePath() + template.value();
             GenericUrl genericUrl = new GenericUrlBuilder(appendQueryParameters(method, parameters, url)).params(
                     parameters).build();
             return genericUrl;
@@ -217,14 +219,7 @@ public class GoogleComputeService {
             return url;
         }
 
-        protected HttpContent createRequestBody(Method method, Map<String, Object> parameters) {
-            RequestBodyTemplate requestBodyTemplate = method.getAnnotation(RequestBodyTemplate.class);
-            HttpContent content = new ByteArrayContent(Json.MEDIA_TYPE, new NamedTemplate()
-                    .templateJson(requestBodyTemplate.value(), parameters).toString().getBytes());
-            return content;
-        }
-
-        protected HttpResponse doRequest(Method method, Map<String, Object> parameters, GenericUrl url)
+        protected HttpResponse doRequest(Method method, Object[] args, Map<String, Object> parameters, GenericUrl url)
                 throws IOException {
             HttpResponse response = null;
             Verb verb = method.getAnnotation(Verb.class);
@@ -232,10 +227,26 @@ public class GoogleComputeService {
                 response = client.getRequestFactory().buildGetRequest(url).execute();
             }
             if (verb.value() == HttpMethod.POST) {
-                HttpContent content = createRequestBody(method, parameters);
+                HttpContent content = createRequestBody(method, args, parameters);
                 response = client.getRequestFactory().buildPostRequest(url, content).execute();
             }
             return response;
+        }
+
+        protected HttpContent createRequestBody(Method method, Object[] args, Map<String, Object> parameters) {
+            RequestBody requestBody = method.getAnnotation(RequestBody.class);
+            if (requestBody != null) {
+                try {
+                    return requestBody.value().newInstance().createRequestBody(method, args, parameters);
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            RequestBodyTemplate requestBodyTemplate = method.getAnnotation(RequestBodyTemplate.class);
+            HttpContent content = new ByteArrayContent(Json.MEDIA_TYPE, new NamedTemplate()
+                    .templateJson(requestBodyTemplate.value(), parameters).toString().getBytes());
+            return content;
         }
 
     }

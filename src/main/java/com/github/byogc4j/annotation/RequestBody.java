@@ -5,11 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.github.byogc4j.util.RequestBodyHandler;
+
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface RootUri {
-
-    String rootUrl();
-    String servicePath();
-
+@Target({ ElementType.METHOD })
+public @interface RequestBody {
+    Class<? extends RequestBodyHandler> value();
 }
