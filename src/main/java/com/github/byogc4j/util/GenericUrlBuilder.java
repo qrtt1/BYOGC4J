@@ -29,7 +29,7 @@ public class GenericUrlBuilder {
 
     public GenericUrl build() {
 
-        Pattern pattern = Pattern.compile(":([^:/]+)");
+        Pattern pattern = Pattern.compile(":([^:/&]+)");
         Matcher matcher = pattern.matcher(template);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {

@@ -38,7 +38,7 @@ JsonObject result = instances.insert(project, zone, param);
 ```
 
 
-## Add the features
+## Add new features
 
 An example for `ComputeEngine`. We group the resources of a service in following structure.
 
@@ -70,6 +70,38 @@ public interface ComputeEngine {
 }
 ```
 
+Another example for `CloudStorage`:
+
+1. `@OptionalQueryParameters` used by the optional URL parameters
+1. We provide the `Param... param` for the optional parameters case
+
+
+```
+@RootUri(rootUrl = "https://www.googleapis.com", servicePath = "/storage/v1/b")
+public interface CloudStorage {
+
+    public interface Buckets {
+
+        @Verb(HttpMethod.GET)
+        @PathParamsTemplate("?project=:project")
+        @OptionalQueryParameters({ "maxResults", "pageToken", "prefix", "projection" })
+        public JsonObject list(@Name("project") String project, Param... param);
+
+    }
+
+    public interface Objects {
+
+        @Verb(HttpMethod.GET)
+        @PathParamsTemplate("/:bucket/o")
+        @OptionalQueryParameters({ "delimiter", "maxResults", "pageToken", "prefix", "projection" })
+        public JsonObject list(@Name("bucket") String bucket, Param... param);
+
+    }
+
+}
+```
+
+
 ### @PathParamsTemplate
 
 
@@ -77,7 +109,7 @@ public interface ComputeEngine {
 @PathParamsTemplate("/:project/zones/:zone/instances")
 ```
 
-In `@PathParamsTemplate` any string starts with `:` and following characters excludes `:` and `/` is a variable
+In `@PathParamsTemplate` any string starts with `:` and following characters excludes `:`, `/` and `&` is a variable
 
 
 ### @RequestBodyTemplate

@@ -2,9 +2,11 @@ package com.github.byogc4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.github.byogc4j.annotation.Defaults;
 import com.github.byogc4j.annotation.HttpMethod;
 import com.github.byogc4j.annotation.Name;
+import com.github.byogc4j.annotation.OptionalQueryParameters;
 import com.github.byogc4j.annotation.PathParamsTemplate;
 import com.github.byogc4j.annotation.RequestBodyTemplate;
 import com.github.byogc4j.annotation.RootUri;
@@ -71,7 +74,7 @@ public class GoogleComputeService {
             throw new RuntimeException(e);
         }
     }
-    
+
     public JsonObject waitOperationDone(Class<?> serviceClass, JsonObject result) {
         String kind = result.get("kind").getAsString();
         String status = result.get("status").getAsString();
@@ -186,9 +189,32 @@ public class GoogleComputeService {
         protected GenericUrl createRequestURL(Method method, Map<String, Object> parameters) {
             PathParamsTemplate template = method.getAnnotation(PathParamsTemplate.class);
             String url = rootUri.rootUrl() + rootUri.servicePath() + template.value();
-
-            GenericUrl genericUrl = new GenericUrlBuilder(url).params(parameters).build();
+            GenericUrl genericUrl = new GenericUrlBuilder(appendQueryParameters(method, parameters, url)).params(
+                    parameters).build();
             return genericUrl;
+        }
+
+        protected String appendQueryParameters(Method method, Map<String, Object> parameters, String url) {
+            StringBuffer sb = new StringBuffer();
+            OptionalQueryParameters optionalQueryParameters = method.getAnnotation(OptionalQueryParameters.class);
+            if (optionalQueryParameters != null) {
+                for (String parameter : optionalQueryParameters.value()) {
+                    if (parameters.containsKey(parameter)) {
+                        try {
+                            sb.append("&").append(parameter).append("=")
+                                    .append(URLEncoder.encode("" + parameters.get(parameter), "utf-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            }
+
+            if (sb.length() > 0 && !url.contains("?")) {
+                sb.replace(0, 1, "?");
+            }
+            url = url + sb;
+            return url;
         }
 
         protected HttpContent createRequestBody(Method method, Map<String, Object> parameters) {
