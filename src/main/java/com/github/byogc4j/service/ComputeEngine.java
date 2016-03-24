@@ -18,7 +18,7 @@ public interface ComputeEngine {
         @Verb(HttpMethod.POST)
         @PathParamsTemplate("/:project/zones/:zone/instances")
         @RequestBodyTemplate("/instances.insert.json")
-        @Defaults({ "metadata=" })
+        @Defaults({ "metadata=", "tags=" })
         public JsonObject insert(@Name("project") String project, @Name("zone") String zone, Param param);
 
         @Verb(HttpMethod.GET)
