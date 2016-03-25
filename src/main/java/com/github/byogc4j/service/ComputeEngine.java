@@ -25,6 +25,11 @@ public interface ComputeEngine {
         @PathParamsTemplate("/:project/zones/:zone/instances")
         public JsonObject list(@Name("project") String project, @Name("zone") String zone);
 
+        @Verb(HttpMethod.DELETE)
+        @PathParamsTemplate("/:project/zones/:zone/instances/:instance")
+        public JsonObject delete(@Name("project") String project, @Name("zone") String zone,
+                @Name("instance") String instance);
+
     }
 
     public interface ForwardingRules {
@@ -38,6 +43,11 @@ public interface ComputeEngine {
         @Verb(HttpMethod.GET)
         @PathParamsTemplate("/:project/regions/:region/forwardingRules")
         public JsonObject list(@Name("project") String project, @Name("region") String region);
+
+        @Verb(HttpMethod.DELETE)
+        @PathParamsTemplate("/:project/regions/:region/forwardingRules/:forwardingRule")
+        public JsonObject delete(@Name("project") String project, @Name("region") String region,
+                @Name("forwardingRule") String forwardingRule);
     }
 
     public interface TargetPools {
@@ -57,6 +67,11 @@ public interface ComputeEngine {
         @Verb(HttpMethod.GET)
         @PathParamsTemplate("/:project/regions/:region/targetPools")
         public JsonObject list(@Name("project") String project, @Name("region") String region);
+
+        @Verb(HttpMethod.DELETE)
+        @PathParamsTemplate("/:project/regions/:region/targetPools/:targetPool")
+        public JsonObject delete(@Name("project") String project, @Name("region") String region,
+                @Name("targetPool") String targetPool);
     }
 
     public interface HttpHealthChecks {

@@ -230,6 +230,9 @@ public class GoogleComputeService {
             if (verb.value() == HttpMethod.GET) {
                 response = client.getRequestFactory().buildGetRequest(url).execute();
             }
+            if (verb.value() == HttpMethod.DELETE) {
+                response = client.getRequestFactory().buildDeleteRequest(url).execute();
+            }
             if (verb.value() == HttpMethod.POST) {
                 HttpContent content = createRequestBody(method, args, parameters);
                 response = client.getRequestFactory().buildPostRequest(url, content).execute();
