@@ -1,3 +1,14 @@
+apply plugin: 'com.novoda.bintray-release'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.3.4'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
@@ -16,3 +27,14 @@ dependencies {
     compile ("com.google.api-client:google-api-client:1.20.0")
 }
 
+publish {
+    userOrg = USER_ORG
+    groupId = MAVEN_GROUP
+    artifactId = MAVEN_ARTIFACT
+    publishVersion = LIBRARY_VERSION
+    desc = DESCRIPTION
+    website = WEBSITE
+    repoName = BINTRAY_REPO
+    bintrayUser = BYOGC4J_OAUTH_UPLOAD_USER
+    bintrayKey = BYOGC4J_OAUTH_UPLOAD_KEY
+}
