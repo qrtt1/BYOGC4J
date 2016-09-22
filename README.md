@@ -18,7 +18,7 @@ googleCredential = googleCredential.createScoped(ComputeEnginsScopes.scopes());
 
 // register the http-client to our GoogleComputeService object
 GoogleComputeService api = new GoogleComputeService();
-api.registerClient(ComputeEngine.class, new HttpClientBuilder(ComputeEngine.class, googleCredential).build());
+api.registerClient(ComputeEngine.class, googleCredential);
 ```
 
 ```java

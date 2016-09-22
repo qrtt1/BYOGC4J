@@ -24,7 +24,9 @@ import com.github.byogc4j.annotation.RootUri;
 import com.github.byogc4j.annotation.Verb;
 import com.github.byogc4j.util.GenericUrlBuilder;
 import com.github.byogc4j.util.NamedTemplate;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClient;
+import com.google.api.client.googleapis.util.Utils;
 import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
@@ -46,6 +48,10 @@ public class GoogleComputeService {
     public void registerClient(Class<?> serviceClass, AbstractGoogleJsonClient client) {
         serviceClients.put(serviceClass, client);
     }
+    
+    public void registerClient(Class<?> serviceClass, GoogleCredential googleCredential) {
+        registerClient(serviceClass, new HttpClientBuilder(serviceClass, googleCredential).build());
+    } 
 
     @SuppressWarnings("unchecked")
     public <T> T create(Class<?> serviceClass, Class<T> resourceClass) {
